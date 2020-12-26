@@ -5,7 +5,6 @@ Websockets protocol
 import re
 import struct
 import random
-import socketpool,wifi
 import adafruit_logging as logging
 from collections import namedtuple
 
