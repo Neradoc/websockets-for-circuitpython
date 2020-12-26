@@ -35,19 +35,7 @@ URI = namedtuple('URI', ('protocol', 'hostname', 'port', 'path'))
 BUFFER_SIZE = const(1024)
 sock_buffer = bytearray(BUFFER_SIZE)
 def read(sock,length):
-	total = 0
-	dataString = b""
-	while total < length:
-		reste = length - total
-		num = sock.recv_into(sock_buffer,reste)
-		#
-		if num == 0:
-			# timeout
-			raise OSError(110)
-		#
-		dataString += sock_buffer[:num]
-		total = total + num
-	return dataString
+	return sock.read(length)
 
 def urlparse(uri):
     """Parse ws:// URLs"""

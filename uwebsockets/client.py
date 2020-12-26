@@ -10,7 +10,7 @@ import adafruit_logging as logging
 import adafruit_binascii as binascii
 import random
 # circuitpython special
-import socketpool,wifi,ssl
+#import socketpool,wifi,ssl
 
 from .protocol import Websocket, urlparse
 
@@ -21,18 +21,9 @@ class WebsocketClient(Websocket):
     is_client = True
 
 def readline(sock):
-    # \r\n
-    buffer =  bytearray(4)
-    dataString = ""
-    while True:
-        num = sock.recv_into(buffer,1)
-        dataString += str(buffer, 'utf8')[:num]
-        if num == 0:
-            return dataString
-        if dataString[-2:] == "\r\n":
-            return dataString
+	return sock.readline()
 
-def connect(uri):
+def connect(uri,socket,iface):
     """
     Connect a websocket.
     """
@@ -43,19 +34,19 @@ def connect(uri):
     if __debug__: LOGGER.debug("open connection %s:%s",
                                 uri.hostname, uri.port)
 
-    pool = socketpool.SocketPool(wifi.radio)
+
+    pool = socket
     addr_info = pool.getaddrinfo(
         uri.hostname, uri.port, 0, pool.SOCK_STREAM
     )[0]
-    sock = pool.socket(
+    sock = socket.socket(
         addr_info[0], addr_info[1], addr_info[2]
     )
     connect_host = addr_info[-1][0]
     if uri.protocol == 'wss':
-        ssl_context = ssl.create_default_context()
-        sock = ssl_context.wrap_socket(sock,server_hostname = uri.hostname)
         connect_host = uri.hostname # that's what I was missing
-    r = sock.connect((connect_host,uri.port))
+
+    r = sock.connect((connect_host,uri.port),iface.TLS_MODE)
 
     def send_header(header, *args):
         if __debug__: LOGGER.debug(str(header), *args)
