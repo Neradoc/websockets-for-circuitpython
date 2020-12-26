@@ -1,7 +1,7 @@
 # websockets-circuitpython-test
 My tests with uwebsockets on circuitpython before maybe making a genuine fork/port.
 
-The code has been adpated to the ESP32S2 firt, then back to using socket.recv and such. It is not currently based on the latest uwebsockets, but an older version that I was using and worked with my code.
+The code has been adpated to the ESP32S2 firt, then back to using socket.recv and such. It is not currently based on the latest uwebsockets, but an older version that I was using and worked with my code. *Don't forget to fill in the wifi SSID and password in secrets.py*.
 
 Making full port will require:
 - abstracting the differences between the two ports and merge them (look at adafruit_requests)
