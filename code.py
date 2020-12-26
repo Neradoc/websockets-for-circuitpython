@@ -18,6 +18,9 @@ import uwebsockets.client
 url = "wss://echo.websocket.org"
 ws = uwebsockets.client.connect(url)
 
-ws.send("Rock it with HTML5 WebSocket")
+message = "Repeat this"
+ws.send(message)
 result = ws.recv()
 print("RESULT",result)
+if result == message:
+	print("SUCCESS")
