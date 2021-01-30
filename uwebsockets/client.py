@@ -6,16 +6,16 @@ https://github.com/aaugustin/websockets/blob/master/websockets/client.py
 """
 
 import time
+import random
 import adafruit_logging as logging
 import adafruit_binascii as binascii
-import random
-# circuitpython special
+# ESP32S2 special - take it out for airlift compatibility
 import socketpool,wifi,ssl
 
 from .protocol import Websocket, urlparse
 
 LOGGER = logging.getLogger(__name__)
-
+ssl_context = ssl.create_default_context()
 
 class WebsocketClient(Websocket):
     is_client = True
@@ -51,10 +51,13 @@ def connect(uri):
         addr_info[0], addr_info[1], addr_info[2]
     )
     connect_host = addr_info[-1][0]
+    
     if uri.protocol == 'wss':
-        ssl_context = ssl.create_default_context()
+        if __debug__: LOGGER.debug("wrap socket")
         sock = ssl_context.wrap_socket(sock,server_hostname = uri.hostname)
-        connect_host = uri.hostname # that's what I was missing
+        connect_host = uri.hostname
+    
+    if __debug__: LOGGER.debug(str((connect_host,uri.port)))
     r = sock.connect((connect_host,uri.port))
 
     def send_header(header, *args):
@@ -67,13 +70,13 @@ def connect(uri):
 
     send_header(b'GET %s HTTP/1.1', uri.path or '/')
     send_header(b'Host: %s:%s', uri.hostname, uri.port)
-    send_header(b'Origin: http://localhost')
-    send_header(b'Upgrade: websocket')
     send_header(b'Connection: Upgrade')
-    send_header(b'Sec-WebSocket-Key: '+key)
+    send_header(b'Upgrade: websocket')
+    send_header(b'Sec-WebSocket-Key: %s', key)
     send_header(b'Sec-WebSocket-Version: 13')
+    send_header(b'Origin: http://%s:%s', uri.hostname, uri.port)
     send_header(b'')
-
+    
     header = readline(sock)[:-2]
     assert header.startswith(b'HTTP/1.1 101 '), header
 
