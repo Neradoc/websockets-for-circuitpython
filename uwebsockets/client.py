@@ -5,34 +5,19 @@ Based very heavily off
 https://github.com/aaugustin/websockets/blob/master/websockets/client.py
 """
 
-import time
 import random
+import time
 import adafruit_logging as logging
 import adafruit_binascii as binascii
-# ESP32S2 special - take it out for airlift compatibility
-import socketpool,wifi,ssl
 
 from .protocol import Websocket, urlparse
 
 LOGGER = logging.getLogger(__name__)
-ssl_context = ssl.create_default_context()
 
 class WebsocketClient(Websocket):
     is_client = True
 
-def readline(sock):
-    # \r\n
-    buffer =  bytearray(4)
-    dataString = ""
-    while True:
-        num = sock.recv_into(buffer,1)
-        dataString += str(buffer, 'utf8')[:num]
-        if num == 0:
-            return dataString
-        if dataString[-2:] == "\r\n":
-            return dataString
-
-def connect(uri):
+def connect(uri, socketModule):
     """
     Connect a websocket.
     """
@@ -43,22 +28,24 @@ def connect(uri):
     if __debug__: LOGGER.debug("open connection %s:%s",
                                 uri.hostname, uri.port)
 
-    pool = socketpool.SocketPool(wifi.radio)
-    addr_info = pool.getaddrinfo(
-        uri.hostname, uri.port, 0, pool.SOCK_STREAM
+    addr_info = socketModule.getaddrinfo(
+        uri.hostname, uri.port, 0, socketModule.SOCK_STREAM
     )[0]
-    sock = pool.socket(
-        addr_info[0], addr_info[1], addr_info[2]
+    print(addr_info[0], addr_info[1])
+    sock = socketModule.socket(
+        addr_info[0], addr_info[1]
     )
     connect_host = addr_info[-1][0]
     
     if uri.protocol == 'wss':
-        if __debug__: LOGGER.debug("wrap socket")
-        sock = ssl_context.wrap_socket(sock,server_hostname = uri.hostname)
         connect_host = uri.hostname
-    
+        connect_mode = socketModule.TLS_MODE
+    else:
+        connect_mode = socketModule.TCP_MODE
+
     if __debug__: LOGGER.debug(str((connect_host,uri.port)))
-    r = sock.connect((connect_host,uri.port))
+    #r = sock.connect((connect_host,uri.port), connect_mode)
+    r = sock.connect(connect_host,uri.port,connect_mode)
 
     def send_header(header, *args):
         if __debug__: LOGGER.debug(str(header), *args)
@@ -72,18 +59,18 @@ def connect(uri):
     send_header(b'Host: %s:%s', uri.hostname, uri.port)
     send_header(b'Connection: Upgrade')
     send_header(b'Upgrade: websocket')
-    send_header(b'Sec-WebSocket-Key: %s', key)
+    send_header(b'Sec-WebSocket-Key: %s', key.decode())
     send_header(b'Sec-WebSocket-Version: 13')
     send_header(b'Origin: http://%s:%s', uri.hostname, uri.port)
     send_header(b'')
     
-    header = readline(sock)[:-2]
+    header = sock.readline()[:-2]
     assert header.startswith(b'HTTP/1.1 101 '), header
 
     # We don't (currently) need these headers
     # FIXME: should we check the return key?
     while header:
         if __debug__: LOGGER.debug(str(header))
-        header = readline(sock)[:-2]
+        header = sock.readline()
 
     return WebsocketClient(sock)

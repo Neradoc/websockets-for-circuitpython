@@ -32,22 +32,11 @@ CLOSE_BAD_CONDITION = const(1011)
 URL_RE = re.compile(r'(wss|ws)://([A-Za-z0-9-\.]+)(?:\:([0-9]+))?(/.+)?')
 URI = namedtuple('URI', ('protocol', 'hostname', 'port', 'path'))
 
-BUFFER_SIZE = const(1024)
-sock_buffer = bytearray(BUFFER_SIZE)
-def read(sock,length):
-	total = 0
-	dataString = b""
-	while total < length:
-		reste = length - total
-		num = sock.recv_into(sock_buffer,reste)
-		#
-		if num == 0:
-			# timeout
-			raise OSError(110)
-		#
-		dataString += sock_buffer[:num]
-		total = total + num
-	return dataString
+class NoDataException(Exception):
+    pass
+
+class ConnectionClosed(Exception):
+    pass
 
 def urlparse(uri):
     """Parse ws:// URLs"""
@@ -97,13 +86,14 @@ class Websocket:
         Read a frame from the socket.
         See https://tools.ietf.org/html/rfc6455#section-5.2 for the details.
         """
-        
-        # not blocking ? small timeout ?
-        #self._sock.settimeout(5)
-        rid = read(self._sock,2)
 
         # Frame header
-        byte1, byte2 = struct.unpack('!BB', rid)
+        two_bytes = self._sock.read(2)
+
+        if not two_bytes:
+            raise NoDataException
+
+        byte1, byte2 = struct.unpack('!BB', two_bytes)
 
         # Byte 1: FIN(1) _(1) _(1) _(1) OPCODE(4)
         fin = bool(byte1 & 0x80)
@@ -114,15 +104,15 @@ class Websocket:
         length = byte2 & 0x7f
 
         if length == 126:  # Magic number, length header is 2 bytes
-            length, = struct.unpack('!H', read(self._sock,2))
+            length, = struct.unpack('!H', self._sock.read(2))
         elif length == 127:  # Magic number, length header is 8 bytes
-            length, = struct.unpack('!Q', read(self._sock,8))
+            length, = struct.unpack('!Q', self._sock.read(8))
 
         if mask:  # Mask is 4 bytes
-            mask_bits = read(self._sock,4)
+            mask_bits = self._sock.read(4)
 
         try:
-            data = read(self._sock,length)
+            data = self._sock.read(length)
         except MemoryError:
             # We can't receive this many bytes, close the socket
             if __debug__: LOGGER.debug("Frame of length %s too big. Closing",
@@ -192,10 +182,12 @@ class Websocket:
         while self.open:
             try:
                 fin, opcode, data = self.read_frame()
+            except NoDataException:
+                return ''
             except ValueError:
                 LOGGER.debug("Failed to read frame. Socket dead.")
                 self._close()
-                return
+                raise ConnectionClosed()
 
             if not fin:
                 raise NotImplementedError()
