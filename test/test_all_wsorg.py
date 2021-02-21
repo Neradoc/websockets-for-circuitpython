@@ -48,9 +48,8 @@ except:
 
 #####################################################################
 
-import uwebsockets.client
-from uwebsockets.socket import UniversalSocket
-uSocket = UniversalSocket(socket, ssl = ssl_context, iface = iface)
+from uwebsockets import Session
+wsession = Session(socket, ssl = ssl_context, iface = iface)
 
 message = "Repeat this"
 urls = [
@@ -61,7 +60,7 @@ urls = [
 
 for url in urls:
 	print(f"TESTING ECHO {url}")
-	with uwebsockets.client.connect(url,uSocket) as ws:
+	with wsession.connect(url) as ws:
 		print(f"SENDING:  <{message}>")
 		ws.send(message)
 		result = ws.recv()
