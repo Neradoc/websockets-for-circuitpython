@@ -19,12 +19,12 @@ class UniversalSocket:
 		self.buffer = None
 		self.ssl_context = ssl
 		self.iface = iface
-		# if not hasattr(self._socket,"read"):
-		#     if not hasattr(self._socket,"recv_into"):
-		#         raise "Socket type not supported"
 		self.buffer = bytearray(_BUFFER_SIZE)
 
 	def readline(self):
+		"""
+		Implement readline() for native wifi using recv_into
+		"""
 		if hasattr(self._socket, "readline"):
 			return self._socket.readline()
 		else:
@@ -38,6 +38,9 @@ class UniversalSocket:
 					return data_string[:-2]
 
 	def read(self, length):
+		"""
+		Implement read() for native wifi using recv_into
+		"""
 		if hasattr(self._socket, "read"):
 			return self._socket.read(length)
 		else:
@@ -58,15 +61,23 @@ class UniversalSocket:
 	# settimeout, send, close
 	def __getattr__(self, attr):
 		if self._socket and hasattr(self._socket, attr):
+			# we are a socket
 			return getattr(self._socket, attr)
 		elif hasattr(self.socket_module, attr):
+			# we are also the socket module
 			return getattr(self.socket_module, attr)
 		elif hasattr(self.iface, attr):
+			# we could be the interface ?
+			# TODO: remove that ?
 			return getattr(self.iface, attr)
 		else:
 			raise AttributeError(f"'UniversalSocket' object has no attribute '{attr}'")
 
-	def connect(self, host, mode=1):
+	def connect(self, host, mode=TCP_MODE):
+		"""
+		Connect to the host = (hostname,port) with the mode (TCP/TLS supported)
+		Wrapping with the ssl_context happens here, not done by the outside code
+		"""
 		hostname, port = host
 		if mode == self.TLS_MODE:
 			if self.ssl_context:
@@ -88,9 +99,13 @@ class UniversalSocket:
 		# else:
 		return self._socket.connect((hostname, port))
 
+	# TODO: remove (stick with getattr)
 	def getaddrinfo(self, *args):
 		return self.socket_module.getaddrinfo(*args)
 
 	def socket(self, *args):
+		"""
+		We are the socket, as well as the socket module
+		"""
 		self._socket = self.socket_module.socket(*args)
 		return self
