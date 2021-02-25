@@ -9,4 +9,6 @@ secrets = {
     # typical adafruit IO stuff
     'aio_username' : '',
     'aio_key' : '',
+    'obs_url' : '192.168.1.2',
+    'obs_password' : '',
 }
