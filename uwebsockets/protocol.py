@@ -5,8 +5,8 @@ Websockets protocol
 import re
 import struct
 import random
-import adafruit_logging as logging
 from collections import namedtuple
+import adafruit_logging as logging
 
 LOGGER = logging.getLogger(__name__)
 
@@ -32,22 +32,11 @@ CLOSE_BAD_CONDITION = const(1011)
 URL_RE = re.compile(r'(wss|ws)://([A-Za-z0-9-\.]+)(?:\:([0-9]+))?(/.+)?')
 URI = namedtuple('URI', ('protocol', 'hostname', 'port', 'path'))
 
-BUFFER_SIZE = const(1024)
-sock_buffer = bytearray(BUFFER_SIZE)
-def read(sock,length):
-	total = 0
-	dataString = b""
-	while total < length:
-		reste = length - total
-		num = sock.recv_into(sock_buffer,reste)
-		#
-		if num == 0:
-			# timeout
-			raise OSError(110)
-		#
-		dataString += sock_buffer[:num]
-		total = total + num
-	return dataString
+class NoDataException(Exception):
+    pass
+
+class ConnectionClosed(Exception):
+    pass
 
 def urlparse(uri):
     """Parse ws:// URLs"""
@@ -73,14 +62,11 @@ def urlparse(uri):
 class Websocket:
     """
     Basis of the Websocket protocol.
-
-    This can probably be replaced with the C-based websocket module, but
-    this one currently supports more options.
     """
     is_client = False
 
     def __init__(self, sock):
-        self._sock = sock
+        self.sock = sock
         self.open = True
 
     def __enter__(self):
@@ -90,20 +76,21 @@ class Websocket:
         self.close()
 
     def settimeout(self, timeout):
-        self._sock.settimeout(timeout)
+        self.sock.settimeout(timeout)
 
     def read_frame(self, max_size=None):
         """
         Read a frame from the socket.
         See https://tools.ietf.org/html/rfc6455#section-5.2 for the details.
         """
-        
-        # not blocking ? small timeout ?
-        #self._sock.settimeout(5)
-        rid = read(self._sock,2)
 
         # Frame header
-        byte1, byte2 = struct.unpack('!BB', rid)
+        two_bytes = self.sock.read(2)
+
+        if not two_bytes:
+            raise NoDataException
+
+        byte1, byte2 = struct.unpack('!BB', two_bytes)
 
         # Byte 1: FIN(1) _(1) _(1) _(1) OPCODE(4)
         fin = bool(byte1 & 0x80)
@@ -114,15 +101,15 @@ class Websocket:
         length = byte2 & 0x7f
 
         if length == 126:  # Magic number, length header is 2 bytes
-            length, = struct.unpack('!H', read(self._sock,2))
+            length, = struct.unpack('!H', self.sock.read(2))
         elif length == 127:  # Magic number, length header is 8 bytes
-            length, = struct.unpack('!Q', read(self._sock,8))
+            length, = struct.unpack('!Q', self.sock.read(8))
 
         if mask:  # Mask is 4 bytes
-            mask_bits = read(self._sock,4)
+            mask_bits = self.sock.read(4)
 
         try:
-            data = read(self._sock,length)
+            data = self.sock.read(length)
         except MemoryError:
             # We can't receive this many bytes, close the socket
             if __debug__: LOGGER.debug("Frame of length %s too big. Closing",
@@ -156,27 +143,27 @@ class Websocket:
 
         if length < 126:  # 126 is magic value to use 2-byte length header
             byte2 |= length
-            self._sock.send(struct.pack('!BB', byte1, byte2))
+            self.sock.send(struct.pack('!BB', byte1, byte2))
 
         elif length < (1 << 16):  # Length fits in 2-bytes
             byte2 |= 126  # Magic code
-            self._sock.send(struct.pack('!BBH', byte1, byte2, length))
+            self.sock.send(struct.pack('!BBH', byte1, byte2, length))
 
         elif length < (1 << 64):
             byte2 |= 127  # Magic code
-            self._sock.send(struct.pack('!BBQ', byte1, byte2, length))
+            self.sock.send(struct.pack('!BBQ', byte1, byte2, length))
 
         else:
             raise ValueError()
 
         if mask:  # Mask is 4 bytes
             mask_bits = struct.pack('!I', random.getrandbits(32))
-            self._sock.send(mask_bits)
+            self.sock.send(mask_bits)
 
             data = bytes(b ^ mask_bits[i % 4]
                          for i, b in enumerate(data))
 
-        self._sock.send(data)
+        self.sock.send(data)
 
     def recv(self):
         """
@@ -192,10 +179,12 @@ class Websocket:
         while self.open:
             try:
                 fin, opcode, data = self.read_frame()
+            except NoDataException:
+                return ''
             except ValueError:
                 LOGGER.debug("Failed to read frame. Socket dead.")
                 self._close()
-                return
+                raise ConnectionClosed()
 
             if not fin:
                 raise NotImplementedError()
@@ -206,7 +195,7 @@ class Websocket:
                 return data
             elif opcode == OP_CLOSE:
                 self._close()
-                return
+                raise ConnectionClosed(opcode)
             elif opcode == OP_PONG:
                 # Ignore this frame, keep waiting for a data frame
                 continue
@@ -250,4 +239,4 @@ class Websocket:
     def _close(self):
         if __debug__: LOGGER.debug("Connection closed")
         self.open = False
-        self._sock.close()
+        self.sock.close()
