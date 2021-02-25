@@ -39,9 +39,6 @@ __repo__ = "https://github.com/Neradoc/CircuitPython_WebSockets.git"
 from .socket import UniversalSocket
 from .client import connect
 
-# from .protocol import Websocket
-
-
 class Session:
     def __init__(self, socket_module, *, ssl=None, iface=None):
         self._usocket = UniversalSocket(
@@ -50,5 +47,8 @@ class Session:
             iface=iface,
         )
 
-    def connect(self, url):
+    def client(self, url):
+        """
+        Connect as a client to the given URL, and return the WebSocket object
+        """
         return connect(url, self._usocket)

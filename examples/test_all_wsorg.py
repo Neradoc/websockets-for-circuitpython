@@ -60,7 +60,7 @@ urls = [
 
 for url in urls:
 	print(f"TESTING ECHO {url}")
-	with wsession.connect(url) as ws:
+	with wsession.client(url) as ws:
 		print(f"SENDING:  <{message}>")
 		ws.send(message)
 		result = ws.recv()
