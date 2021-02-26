@@ -4,11 +4,10 @@ raise(OSError("Please update your secrets.py file and remove this line"))
 secrets = {
     'ssid' : "wifi networks",
     'password' : "wifi password",
-    # for some applications, you need a timezone
-    'timezone' : "Europe/Paris",
-    # typical adafruit IO stuff
-    'aio_username' : '',
-    'aio_key' : '',
-    'obs_url' : '192.168.1.2',
+    # for tests
+    'test_server' : "192.168.1.1",
+    'test_port' : "5000",
+    # for the OBS demo
+    'obs_url' : '192.168.1.1',
     'obs_password' : '',
 }

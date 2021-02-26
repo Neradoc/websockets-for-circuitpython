@@ -1,0 +1,21 @@
+# Cpython websocket client/server demo
+
+To use, first run the server demo on your computer:
+
+-	run `server.py` with python 3
+
+And place the following files at the root of the Circuitpython drive.
+
+-	`client.py`
+-	`connect_circuitpython.py`
+-	`status_led.py`
+-	`uwebsockets` directory
+-	`secrets.py` (filled in)
+
+Once the boards connects to the server, the server script should prompt you for a color, which will then be displayed on the status LED of the board.
+
+Accepted formats include:
+
+-	hexadecimal html color `0xFFFFFF`
+-	decimal version of that `16777215`
+-	list of decimal RGB values `(255,255,255)` or `[255,255,255]`
