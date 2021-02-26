@@ -13,12 +13,12 @@ else:
 
 ### Example using a 8-pixels RGBW neopixel stick
 # from neopixel import NeoPixel
-# hardware_pixels = NeoPixel(pins.IO36, 8, bpp=4)
+# hardware_pixels = NeoPixel(board.IO36, 8, bpp=4)
 
 if hasattr(board,"IO9"):
 	# UnexpectedMaker Feather S2
-	button_twitch = board.IO9
-	button_record = board.IO8
+	button_twitch = board.IO7
+	button_record = board.IO1
 	button_buffer = board.IO33
 elif hasattr(board,"D9"):
 	# Feather NRF52840 Express

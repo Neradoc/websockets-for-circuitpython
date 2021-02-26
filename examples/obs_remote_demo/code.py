@@ -10,7 +10,7 @@ from obsws import obsws
 
 # adresse d'OBS
 url = secrets["obs_url"]
-password = secrets["osb_password"]
+password = secrets["obs_password"]
 
 # Reset all
 def reset():
@@ -37,7 +37,7 @@ class MyPix():
 
 # RGBW: bpp = 4
 pixels_strip = MyPix(pins.hardware_pixels)
-pixels_strip.brightness = 0.1
+pixels_strip.brightness = BRIGHTNESS
 pixels_strip.fill(STARTUP)
 pixels_strip.show()
 
@@ -51,7 +51,7 @@ def dieInError():
 # blinker les status lentement
 ################################################################
 
-swirl_interval = const(1)
+swirl_interval = const(2)
 
 class StatusColor(dict):
 	def __init__(self):
@@ -73,17 +73,21 @@ class StatusColor(dict):
 					if color is not None:
 						colors[index] = color
 			pixels_strip.set_pattern(colors)
+		else:
+			pixels_strip.set_pattern(ALL_OFF)
 		self.t0 = time.monotonic()
-	def cycle_call(self):
-		t1 = time.monotonic()
+	def update_swirl(self):
 		if len(self.patterns) == 0:
 			pixels_strip.set_pattern(ALL_OFF)
 		else:
-			if t1 - self.t0 > swirl_interval:
-				self.pos = (self.pos + 1) % len(self.patterns)
-				self.t0 = t1
+			self.pos = (self.pos + 1) % len(self.patterns)
 			current = sorted(self.patterns.keys())[self.pos]
 			pixels_strip.set_pattern(self.patterns[current])
+	def cycle_call(self):
+		t1 = time.monotonic()
+		if t1 - self.t0 > swirl_interval:
+			self.t0 = t1
+			self.update_swirl()
 
 status_colors = StatusColor()
 
