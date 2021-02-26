@@ -3,6 +3,7 @@
 This is a demo for a client for the OBS websockets plugin. It supports using either the native wifi module or an airlift breakout or feather wing. The default values set in the obs_pins.py file are set for the a Unexpected Maker Feather S2.
 
 Requires `adafruit_hashlib` in addition to uwebsockets requirements.
+To use, place all the files at the root of the Circuitpython drive, along with the `uwebsockets` directory, the `connect_circuitpython.py` file, and the filled in `secrets.py`.
 
 To test it on your board you can change the `obs_pins.py` file:
 
