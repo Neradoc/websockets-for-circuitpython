@@ -19,3 +19,4 @@ Accepted formats include:
 -	hexadecimal html color `0xFFFFFF`
 -	decimal version of that `16777215`
 -	list of decimal RGB values `(255,255,255)` or `[255,255,255]`
+-	any of: `aqua` `black` `blue` `green` `magenta` `orange` `pink` `purple` `red` `turquoise` `white` `yellow`

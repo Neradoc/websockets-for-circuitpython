@@ -5,12 +5,28 @@ import time
 import websockets
 
 
+color_names = {
+	'aqua' : 0x00FFFF,
+	'black' : 0x000000,
+	'blue' : 0x0000FF,
+	'green' : 0x008000,
+	'magenta' : 0xFF00FF,
+	'orange' : 0xFFA500,
+	'pink' : 0xFFC0CB,
+	'purple' : 0x800080,
+	'red' : 0xFF0000,
+	'turquoise' : 0x40E0D0,
+	'white' : 0xFFFFFF,
+	'yellow' : 0xFFFF00,
+}
+
+
 async def consumer(message):
 	print(message)
 
 
 async def producer():
-	color = input("Color:")
+	color = input("Color:").strip()
 	if re.match('^\d+$',color):
 		color = int(color)
 	elif re.match('^\((\d+),(\d+),(\d+)\)$',color):
@@ -22,6 +38,8 @@ async def producer():
 	elif re.match('^0x([a-fA-F0-9]+)$',color):
 		m = re.match('^0x([a-fA-F0-9]+)$',color)
 		color = int(m.group(1),16)
+	elif color.lower() in color_names:
+		color = color_names[color.lower()]
 	return json.dumps({"color":color})
 
 
