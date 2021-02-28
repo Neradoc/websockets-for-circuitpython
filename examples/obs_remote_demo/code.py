@@ -95,16 +95,33 @@ status_colors = StatusColor()
 # configuration des boutons
 ################################################################
 
-button_twitch = DigitalInOut(pins.button_twitch)
-button_twitch.switch_to_input(pull=Pull.UP)
+class Button:
+	def __init__(self,pin,pull):
+		self.pin = DigitalInOut(pin)
+		if pull == "UP":
+			self.pin.switch_to_input(pull=Pull.UP)
+			self.pull = True
+		elif pull == "DOWN":
+			self.pin.switch_to_input(pull=Pull.DOWN)
+			self.pull = False
+		else:
+			raise(ValueError("Button: pull must be UP or DOWN"))
+		self.wasOn = False
+	@property
+	def on(self):
+		return self.pin.value != self.pull
+	@property
+	def pressed(self):
+		if self.on and not self.wasOn:
+			self.wasOn = True
+			return True
+		elif not self.on and self.wasOn:
+			self.wasOn = False
+		return False
 
-button_record = DigitalInOut(pins.button_record)
-button_record.switch_to_input(pull=Pull.UP)
-
-button_buffer = DigitalInOut(pins.button_buffer)
-button_buffer.switch_to_input(pull=Pull.UP)
-
-buttons_gamepad = gamepad.GamePad(button_twitch, button_record, button_buffer)
+button_twitch = Button(pins.button_twitch,"UP")
+button_record = Button(pins.button_record,"UP")
+button_buffer = Button(pins.button_buffer,"UP")
 
 ################################################################
 # gestion des events et tout
@@ -196,30 +213,24 @@ def act_on_update(rec):
 		# TODO: prendre en compte la déconnexion
 		print("DECO -- DO SOMETHING")
 # ACT ON BUTTONS
-were_pressed = 0
 def act_on_buttons():
-	global were_pressed
-	
-	pressed = buttons_gamepad.get_pressed()
-	if pressed & 0x01 and not were_pressed & 0x01: # button_twitch
+	if button_twitch.pressed:
 		print("Button Stream")
 		if statusStream:
 			id = obs.send({"request-type":"StopStreaming"})
 		else:
 			id = obs.send({"request-type":"StartStreaming"})
 	
-	if pressed & 0x02 and not were_pressed & 0x02: # button_record
+	if button_record.pressed:
 		print("Button Record")
 		if statusRecord:
 			id = obs.send({"request-type":"StopRecording"})
 		else:
 			id = obs.send({"request-type":"StartRecording"})
 	
-	if pressed & 0x04 and not were_pressed & 0x04: # button_buffer
+	if button_buffer.pressed:
 		print("Button Buffer")
 		id = obs.send({"request-type":"SaveReplayBuffer"})
-	
-	were_pressed = pressed
 
 ################################################################
 #
