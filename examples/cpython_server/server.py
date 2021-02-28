@@ -1,7 +1,9 @@
+from aioconsole import ainput
 import asyncio
 import json
 import re
 import time
+import sys
 import websockets
 
 
@@ -12,7 +14,7 @@ color_names = {
 	'green' : 0x008000,
 	'magenta' : 0xFF00FF,
 	'orange' : 0xFFA500,
-	'pink' : 0xFFC0CB,
+	'pink' : 0xF02080,
 	'purple' : 0x800080,
 	'red' : 0xFF0000,
 	'turquoise' : 0x40E0D0,
@@ -20,42 +22,65 @@ color_names = {
 	'yellow' : 0xFFFF00,
 }
 
+COLOR_PROMPT = "Color >>> "
+
 
 async def consumer(message):
-	print(message)
+	try:
+		data = json.loads(message)
+	except:
+		data = {}
+	try:
+		if 'buttons' in data:
+			for button, action in data['buttons'].items():
+				if action == "released":
+					print("")
+					print(f"Button clicked: {button}")
+					print(COLOR_PROMPT,end="")
+					sys.stdout.flush()
+	except:
+		print("Malformed buttons", data)
 
 
 async def producer():
-	color = input("Color:").strip()
-	if re.match('^\d+$',color):
+	color = await ainput(COLOR_PROMPT)
+	color = color.strip()
+	if color == "":
+		return None
+	elif re.match('^\d+$', color):
 		color = int(color)
-	elif re.match('^\((\d+),(\d+),(\d+)\)$',color):
-		m = re.match('^\((\d+),(\d+),(\d+)\)$',color)
-		color = (int(m.group(1)),int(m.group(2)),int(m.group(3)))
-	elif re.match('^\[(\d+),(\d+),(\d+)\]$',color):
-		m = re.match('^\[(\d+),(\d+),(\d+)\]$',color)
-		color = (int(m.group(1)),int(m.group(2)),int(m.group(3)))
-	elif re.match('^0x([a-fA-F0-9]+)$',color):
-		m = re.match('^0x([a-fA-F0-9]+)$',color)
-		color = int(m.group(1),16)
+	elif re.match('^\((\d+),(\d+),(\d+)\)$', color):
+		m = re.match('^\((\d+),(\d+),(\d+)\)$', color)
+		color = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+	elif re.match('^\[(\d+),(\d+),(\d+)\]$', color):
+		m = re.match('^\[(\d+),(\d+),(\d+)\]$', color)
+		color = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+	elif re.match('^0x([a-fA-F0-9]+)$', color):
+		m = re.match('^0x([a-fA-F0-9]+)$', color)
+		color = int(m.group(1), 16)
 	elif color.lower() in color_names:
 		color = color_names[color.lower()]
 	return json.dumps({"color":color})
 
 
 async def consumer_handler(websocket, path):
+	print(f"START consumer_handler {path}")
 	async for message in websocket:
+		# print("<", message)
 		await consumer(message)
 
 
 async def producer_handler(websocket, path):
+	print(f"START producer_handler {path}")
 	while True:
 		message = await producer()
-		print(">",message)
-		await websocket.send(message)
+		if message:
+			# print(">", message)
+			await websocket.send(message)
 
 
 async def handler(websocket, path):
+	print("Connection from {}".format(websocket.remote_address))
 	consumer_task = asyncio.ensure_future(
 		consumer_handler(websocket, path))
 	producer_task = asyncio.ensure_future(
