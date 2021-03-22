@@ -8,7 +8,7 @@ from connect_circuitpython import connect_wifi
 import obs_pins as pins
 from obsws import obsws
 
-# adresse d'OBS
+# OBS connection info
 url = secrets["obs_url"]
 password = secrets["obs_password"]
 
@@ -18,7 +18,7 @@ def reset():
 	microcontroller.reset()
 
 ################################################################
-# configurations des neopixels et des couleurs
+# neopixels and colors
 ################################################################
 
 from obs_colors import *
@@ -48,7 +48,11 @@ def dieInError():
 	pixels_strip.show()
 
 ################################################################
-# blinker les status lentement
+# blink the statuses
+# sets the neopixels colors to each status one after the other
+# is a status has a pixel as None, don't change it
+# so if multiple pixels, they be made to stay a single color
+# by using each for one state
 ################################################################
 
 swirl_interval = const(2)
@@ -92,7 +96,7 @@ class StatusColor(dict):
 status_colors = StatusColor()
 
 ################################################################
-# configuration des boutons
+# buttons ! who doesn't like buttons ?
 ################################################################
 
 class Button:
@@ -124,7 +128,7 @@ button_record = Button(pins.button_record,"UP")
 button_buffer = Button(pins.button_buffer,"UP")
 
 ################################################################
-# gestion des events et tout
+# event manager to register and react to messages from OBS
 ################################################################
 
 # Events System
@@ -141,7 +145,7 @@ class Update:
 		self.action = action
 
 ################################################################
-# gestion du buffer
+# manage the buffer record button/feature
 ################################################################
 
 def buffer_on(message = None):
@@ -156,12 +160,11 @@ def buffer_start():
 	reactions.insert(0,React(id,buffer_on))
 
 ################################################################
-# gestion des record et du stream
+# manage the record and stream actions
 ################################################################
 statusRecord = False
 statusStream = False
 
-# initialisation du status
 def status_got(message = None):
 	global statusStream,statusRecord
 	statusStream = message['streaming']
@@ -181,7 +184,7 @@ def get_status():
 	reactions.insert(0,React(id,status_got))
 
 ################################################################
-# sous fonctions de la loop
+# helper functions for the loop
 ################################################################
 
 # ACT ON MESSAGE
@@ -210,7 +213,7 @@ def act_on_update(rec):
 		statusRecord = False
 		status_colors.remove('record')
 	elif rec['update-type'] == "Exiting":
-		# TODO: prendre en compte la déconnexion
+		# TODO: do something about the disconnection
 		print("DECO -- DO SOMETHING")
 # ACT ON BUTTONS
 def act_on_buttons():
@@ -234,11 +237,11 @@ def act_on_buttons():
 
 ################################################################
 #
-# début du "main"
+# the "main" loop pat
 #
 ################################################################
 
-# connection à OBS (OR DIE)
+# connect to OBS (OR DIE)
 obs = None
 def connect():
 	global obs
@@ -251,12 +254,12 @@ def connect():
 		print(Ex)
 		raise Ex
 
-# préparer les réactions aux messages de buffer
+# register buffer updates
 updates.append(Update("ReplayStopped",buffer_off))
 updates.append(Update("ReplayStarted",buffer_on))
 
-# loop
-def faire_la_loop():
+# the OBS loop
+def obs_reading_loop():
 	global obs
 	try:
 		while True:
@@ -281,18 +284,17 @@ def faire_la_loop():
 		raise Ex
 		#reset()
 
-while 1:
+# the global while loop for connection
+while True:
 	try:
 		connect()
 		if obs != None:
-			# start le buffer, récupérer le status
+			# start the buffer, get the status
 			buffer_start()
 			get_status()
 			gc.collect()
-			# faire la loop si ça marche
-			#pixels_strip.fill(OFF)
-			#pixels_strip.show()
-			faire_la_loop()
+			# do the loop
+			obs_reading_loop()
 	except Exception as Ex:
 		obs = None
 		dieInError()
