@@ -17,6 +17,7 @@ import json
 import os
 import sys
 import time
+import errno
 
 """
 Setup button inputs, reasonnable defaults for some boards.
@@ -54,7 +55,7 @@ from uwebsockets import Session
 socket, ssl_context, iface = connect_wifi()
 wsession = Session(socket, ssl = ssl_context, iface = iface)
 
-url = "ws://{}:{}/index".format(secrets['test_server'], secrets['test_port'])
+url = "ws://{}:{}/index".format(secrets['test_server'], secrets.get('test_port', 5000))
 
 """
 Loop-de-loop
@@ -69,8 +70,8 @@ with wsession.client(url) as ws:
 		# recv from the server
 		try:
 			result = ws.recv()
-		except Exception as ex:
-			if ex.args[0] == 116:
+		except OSError as err:
+			if err.args[0] == errno.ETIMEDOUT:
 				result = None
 			else:
 				raise
