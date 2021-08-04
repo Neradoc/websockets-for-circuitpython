@@ -27,15 +27,15 @@ class UniversalSocket:
 		"""
 		if hasattr(self._socket, "readline"):
 			return self._socket.readline()
-		else:
-			data_string = b""
-			while True:
-				num = self._socket.recv_into(self.buffer, 1)
-				data_string += str(self.buffer, 'utf8')[:num]
-				if num == 0:
-					return data_string
-				if data_string[-2:] == b"\r\n":
-					return data_string[:-2]
+
+		data_string = b""
+		while True:
+			num = self._socket.recv_into(self.buffer, 1)
+			data_string += str(self.buffer, 'utf8')[:num]
+			if num == 0:
+				return data_string
+			if data_string[-2:] == b"\r\n":
+				return data_string[:-2]
 
 	def read(self, length):
 		"""
@@ -43,20 +43,20 @@ class UniversalSocket:
 		"""
 		if hasattr(self._socket, "read"):
 			return self._socket.read(length)
-		else:
-			total = 0
-			data_string = b""
-			while total < length:
-				reste = length - total
-				num = self._socket.recv_into(self.buffer, min(_BUFFER_SIZE, reste))
-				#
-				if num == 0:
-					# timeout
-					raise OSError(110)
-				#
-				data_string += self.buffer[:num]
-				total = total + num
-			return data_string
+
+		total = 0
+		data_string = b""
+		while total < length:
+			reste = length - total
+			num = self._socket.recv_into(self.buffer, min(_BUFFER_SIZE, reste))
+			#
+			if num == 0:
+				# timeout
+				raise OSError(110)
+			#
+			data_string += self.buffer[:num]
+			total = total + num
+		return data_string
 
 	# settimeout, send, close
 	def __getattr__(self, attr):
@@ -70,8 +70,7 @@ class UniversalSocket:
 			# we could be the interface ?
 			# TODO: remove that ?
 			return getattr(self.iface, attr)
-		else:
-			raise AttributeError(f"'UniversalSocket' object has no attribute '{attr}'")
+		raise AttributeError(f"'UniversalSocket' object has no attribute '{attr}'")
 
 	def connect(self, host, mode=TCP_MODE):
 		"""
