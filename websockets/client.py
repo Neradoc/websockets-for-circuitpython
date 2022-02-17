@@ -17,8 +17,10 @@ from .protocol import Websocket, urlparse
 
 LOGGER = logging.getLogger(__name__)
 
+
 class WebsocketClient(Websocket):
     is_client = True
+
 
 def connect(uri, socket_module):
     """

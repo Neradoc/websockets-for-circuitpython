@@ -25,6 +25,7 @@ __repo__ = "https://github.com/Neradoc/CircuitPython_websockets.git"
 from .socket import UniversalSocket
 from .client import connect
 
+
 class Session:
     def __init__(self, socket_module, *, ssl=None, iface=None):
         self._usocket = UniversalSocket(
