@@ -1,5 +1,13 @@
+# SPDX-FileCopyrightText: Copyright (c) 2021 Neradoc
+#
+# SPDX-License-Identifier: MIT
 """
-Universal socket
+`websockets`
+================================================================================
+
+Universal socket for abstracting ESP32SPI/native wifi
+
+* Author(s): Neradoc
 """
 
 TCP_MODE = 1

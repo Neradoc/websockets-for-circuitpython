@@ -1,5 +1,12 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019 Danielle Madeley
+# SPDX-FileCopyrightText: Copyright (c) 2021 Neradoc
+#
+# SPDX-License-Identifier: MIT
 """
-Websockets protocol
+`websockets.protocol`
+================================================================================
+
+* Author(s): Danielle Madeley, Neradoc
 """
 
 import re

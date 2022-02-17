@@ -1,18 +1,4 @@
 # SPDX-FileCopyrightText: 2017 Scott Shawcroft, written for Adafruit Industries
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
 #
 # SPDX-License-Identifier: Unlicense
-
-*.mpy
-.idea
-__pycache__
-_build
-*.pyc
-.env
-.python-version
-build*/
-bundles
-*.DS_Store
-.eggs
-dist
-**/*.egg-info
-.vscode
