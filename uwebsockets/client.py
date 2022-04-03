@@ -42,7 +42,7 @@ def connect(uri, socket_module):
         connect_mode = socket_module.TCP_MODE
 
     if __debug__: LOGGER.debug(str((connect_host,uri.port)))
-    #r = sock.connect((connect_host,uri.port), connect_mode)
+    
     r = sock.connect((connect_host,uri.port),connect_mode)
 
     def send_header(header, *args):
