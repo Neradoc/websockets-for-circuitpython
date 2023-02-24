@@ -27,6 +27,11 @@ from .client import connect
 
 
 class Session:
+    """
+    Session class, used to configure the websocket client.
+    Similar construction as the adafruit_requests version.
+    """
+
     def __init__(self, socket_module, *, ssl=None, iface=None):
         self._usocket = UniversalSocket(
             socket_module,

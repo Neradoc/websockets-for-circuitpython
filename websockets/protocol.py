@@ -8,12 +8,13 @@
 
 * Author(s): Danielle Madeley, Neradoc
 """
+# pylint: disable=invalid-name
 
-from collections import namedtuple
-from micropython import const
 import random
 import re
 import struct
+from collections import namedtuple
+from micropython import const
 import adafruit_logging as logging
 
 LOGGER = logging.getLogger(__name__)
@@ -42,11 +43,11 @@ URI = namedtuple("URI", ("protocol", "hostname", "port", "path"))
 
 
 class NoDataException(Exception):
-    pass
+    """No data received unexpectedly"""
 
 
 class ConnectionClosed(Exception):
-    pass
+    """Connection closed"""
 
 
 def urlparse(uri):
@@ -69,6 +70,8 @@ def urlparse(uri):
 
         return URI(protocol, host, int(port), path)
 
+    raise ValueError("URL invalid. Format: ws[s]://server:port/[path]")
+
 
 class Websocket:
     """
@@ -88,9 +91,10 @@ class Websocket:
         self.close()
 
     def settimeout(self, timeout):
+        """Set the timeout of the underlying socket"""
         self.sock.settimeout(timeout)
 
-    def read_frame(self, max_size=None):
+    def read_frame(self):  # max_size=None
         """
         Read a frame from the socket.
         See https://tools.ietf.org/html/rfc6455#section-5.2 for the details.
@@ -194,33 +198,33 @@ class Websocket:
             except ValueError:
                 LOGGER.debug("Failed to read frame. Socket dead.")
                 self._close()
-                raise ConnectionClosed()
+                raise ConnectionClosed()  # pylint: disable=raise-missing-from
 
             if not fin:
                 raise NotImplementedError()
 
             if opcode == _OP_TEXT:
                 return data.decode("utf-8")
-            elif opcode == _OP_BYTES:
+            if opcode == _OP_BYTES:
                 return data
-            elif opcode == _OP_CLOSE:
+            if opcode == _OP_CLOSE:
                 self._close()
                 raise ConnectionClosed(opcode)
-            elif opcode == _OP_PONG:
+            if opcode == _OP_PONG:
                 # Ignore this frame, keep waiting for a data frame
                 continue
-            elif opcode == _OP_PING:
+            if opcode == _OP_PING:
                 # We need to send a pong frame
                 if __debug__:
                     LOGGER.debug("Sending PONG")
                 self.write_frame(_OP_PONG, data)
                 # And then wait to receive
                 continue
-            elif opcode == _OP_CONT:
+            if opcode == _OP_CONT:
                 # This is a continuation of a previous frame
                 raise NotImplementedError(opcode)
-            else:
-                raise ValueError(opcode)
+            # nothing
+            raise ValueError(opcode)
 
     def send(self, buf):
         """Send data to the websocket."""

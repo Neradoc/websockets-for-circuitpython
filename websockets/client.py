@@ -19,6 +19,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class WebsocketClient(Websocket):
+    """Web socket client wrapper class"""
+
     is_client = True
 
 
@@ -49,14 +51,14 @@ def connect(uri, socket_module):
 
     if __debug__:
         LOGGER.debug(str((connect_host, uri.port)))
-    # r = sock.connect((connect_host,uri.port), connect_mode)
-    r = sock.connect((connect_host, uri.port), connect_mode)
+
+    sock.connect((connect_host, uri.port), connect_mode)
 
     def send_header(header, *args):
         output = header.format(*args)
         if __debug__:
             LOGGER.debug(output.decode())
-        sent = sock.send(output + b"\r\n")
+        return sock.send(output + b"\r\n")
 
     # Sec-WebSocket-Key is 16 bytes of random base64 encoded
     key = binascii.b2a_base64(bytes(random.getrandbits(8) for _ in range(16)))[:-1]
@@ -74,8 +76,7 @@ def connect(uri, socket_module):
     if not header.startswith(b"HTTP/1.1 101 "):
         raise ConnectionError(header)
 
-    # We don't (currently) need these headers
-    # FIXME: should we check the return key?
+    # We don't (currently) need these headers should we check the returned key?
     while header:
         if __debug__:
             LOGGER.debug(str(header))

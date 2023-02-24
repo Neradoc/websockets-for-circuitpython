@@ -10,6 +10,7 @@ Universal socket for abstracting ESP32SPI/native wifi
 * Author(s): Neradoc
 """
 
+import errno
 from micropython import const
 
 TCP_MODE = 1
@@ -19,6 +20,10 @@ _BUFFER_SIZE = const(32)
 
 
 class UniversalSocket:
+    """
+    Socket class for compatibility with native wifi and ESP32SPI wifi.
+    """
+
     TCP_MODE = TCP_MODE
     TLS_MODE = TLS_MODE
     UDP_MODE = UDP_MODE
@@ -62,7 +67,7 @@ class UniversalSocket:
             #
             if num == 0:
                 # timeout
-                raise OSError(110)
+                raise OSError(errno.ETIMEDOUT)
             #
             data_string += self.buffer[:num]
             total = total + num
@@ -73,10 +78,10 @@ class UniversalSocket:
         if self._socket and hasattr(self._socket, attr):
             # we are a socket
             return getattr(self._socket, attr)
-        elif hasattr(self.socket_module, attr):
+        if hasattr(self.socket_module, attr):
             # we are also the socket module
             return getattr(self.socket_module, attr)
-        elif hasattr(self.iface, attr):
+        if hasattr(self.iface, attr):
             # we could be the interface ?
             # TODO: remove that ?
             return getattr(self.iface, attr)
@@ -110,6 +115,7 @@ class UniversalSocket:
 
     # TODO: remove (stick with getattr)
     def getaddrinfo(self, *args):
+        """Get address info from the underlying socket module"""
         return self.socket_module.getaddrinfo(*args)
 
     def socket(self, *args):
