@@ -13,13 +13,15 @@ logging.basicConfig(
 
 PORT = 5000
 
+
 async def echo(websocket, path):
     try:
         async for message in websocket:
-            print ("Received and echoing message: "+message, flush=True)
+            print("Received and echoing message: " + message, flush=True)
             await websocket.send(message)
     except:
         print("Bye")
+
 
 start_server = websockets.serve(echo, "0.0.0.0", PORT)
 
