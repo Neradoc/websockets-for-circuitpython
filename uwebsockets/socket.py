@@ -31,7 +31,7 @@ class UniversalSocket:
 		data_string = b""
 		while True:
 			num = self._socket.recv_into(self.buffer, 1)
-			data_string += str(self.buffer, 'utf8')[:num]
+			data_string += self.buffer[:num]
 			if num == 0:
 				return data_string
 			if data_string[-2:] == b"\r\n":
