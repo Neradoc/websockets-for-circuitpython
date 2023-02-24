@@ -10,6 +10,8 @@ Universal socket for abstracting ESP32SPI/native wifi
 * Author(s): Neradoc
 """
 
+from micropython import const
+
 TCP_MODE = 1
 TLS_MODE = 2
 UDP_MODE = 4

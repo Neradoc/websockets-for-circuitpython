@@ -9,10 +9,11 @@
 * Author(s): Danielle Madeley, Neradoc
 """
 
+from collections import namedtuple
+from micropython import const
+import random
 import re
 import struct
-import random
-from collections import namedtuple
 import adafruit_logging as logging
 
 LOGGER = logging.getLogger(__name__)
