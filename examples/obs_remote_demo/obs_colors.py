@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
+
 # base colors
 STARTUP = (50, 50, 50)
 NEUTRAL = (0, 0, 0)

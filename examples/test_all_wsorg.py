@@ -1,6 +1,5 @@
-## set debug to False for future imports (removes logging)
-# import micropython
-# micropython.opt_level(1)
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
 
 from connect_circuitpython import connect_wifi
 

@@ -21,3 +21,7 @@ The code has been adpated to the ESP32S2 firt, then back to using socket.recv an
 
 Original uwebsockets implementation:
 https://github.com/danni/uwebsockets
+
+
+SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+SPDX-License-Identifier: MIT

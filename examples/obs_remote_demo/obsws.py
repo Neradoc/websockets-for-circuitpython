@@ -1,5 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2017 Guillaume "Elektordi" Genty
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
+
 import adafruit_hashlib as hashlib
-import adafruit_binascii as binascii
+import binascii
 import json
 from uwebsockets import Session
 from connect_circuitpython import connect_wifi

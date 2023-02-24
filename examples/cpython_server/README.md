@@ -23,3 +23,7 @@ Accepted formats include:
 -	any of: `aqua` `black` `blue` `green` `magenta` `orange` `pink` `purple` `red` `turquoise` `white` `yellow`
 
 From the board side, you can press buttons, if there are buttons configured, look in the `client.py` script. The buttons pressed will be printed out on the server console.
+
+
+SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+SPDX-License-Identifier: MIT

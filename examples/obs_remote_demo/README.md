@@ -22,3 +22,7 @@ The colors are setup the following way:
 -	When we exit a state, we reset the pattern
 
 The `obs_pins.py` and `obs_colors.py` files contain comments showing ways to set it up using an 8-pixels RGBW neopixel stick.
+
+
+SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+SPDX-License-Identifier: MIT

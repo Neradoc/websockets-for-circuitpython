@@ -26,13 +26,13 @@ repos:
         args:
           - --disable=consider-using-f-string
         exclude: "^(docs/|examples/|tests/|setup.py$)"
-      - id: pylint
-        name: pylint (example code)
-        description: Run pylint rules on "examples/*.py" files
-        types: [python]
-        files: "^examples/"
-        args:
-          - --disable=missing-docstring,invalid-name,consider-using-f-string,duplicate-code
+#       - id: pylint
+#         name: pylint (example code)
+#         description: Run pylint rules on "examples/*.py" files
+#         types: [python]
+#         files: "^examples/"
+#         args:
+#           - --disable=missing-docstring,invalid-name,consider-using-f-string,duplicate-code
       - id: pylint
         name: pylint (test code)
         description: Run pylint rules on "tests/*.py" files

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
+
 from aioconsole import ainput
 import asyncio
 import json

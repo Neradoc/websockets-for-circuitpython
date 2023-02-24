@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
 
 import asyncio
 import websockets

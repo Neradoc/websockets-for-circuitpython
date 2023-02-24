@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
+
 from digitalio import DigitalInOut, Pull
 import gamepad
 import gc

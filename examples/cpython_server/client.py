@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
 """
 Client/Server demo for websockets
 

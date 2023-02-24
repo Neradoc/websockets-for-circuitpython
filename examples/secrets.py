@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2022 Neradoc
+# SPDX-License-Identifier: MIT
+
 # REMOVE THIS LINE and update your credentials to access your wifi
 raise (OSError("Please update your secrets.py file and remove this line"))
 
