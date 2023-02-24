@@ -19,7 +19,7 @@ Implementation Notes
 
 # imports
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/Neradoc/CircuitPython_websockets.git"
 
 from .socket import UniversalSocket
