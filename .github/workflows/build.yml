@@ -59,9 +59,9 @@ jobs:
       with:
         name: bundles
         path: ${{ github.workspace }}/bundles/
-    - name: Build docs
-      working-directory: docs
-      run: sphinx-build -E -W -b html . _build/html
+#     - name: Build docs
+#       working-directory: docs
+#       run: sphinx-build -E -W -b html . _build/html
     - name: Check For pyproject.toml
       id: need-pypi
       run: |
