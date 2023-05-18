@@ -24,7 +24,7 @@ class WebsocketClient(Websocket):
     is_client = True
 
 
-def connect(uri, socket_module):
+def connect(uri, socket_module, extra_headers):
     """
     Connect a websocket.
     """
@@ -62,7 +62,6 @@ def connect(uri, socket_module):
 
     # Sec-WebSocket-Key is 16 bytes of random base64 encoded
     key = binascii.b2a_base64(bytes(random.getrandbits(8) for _ in range(16)))[:-1]
-
     send_header("GET {} HTTP/1.1", uri.path or "/")
     send_header("Host: {}:{}", uri.hostname, uri.port)
     send_header("Connection: Upgrade")
@@ -70,6 +69,9 @@ def connect(uri, socket_module):
     send_header("Sec-WebSocket-Key: {}", key.decode())
     send_header("Sec-WebSocket-Version: 13")
     send_header("Origin: http{}://{}:{}", https, uri.hostname, uri.port)
+    # additional headers
+    for extra_header_key in extra_headers.keys():
+        send_header("{}: {}", extra_header_key, extra_headers[extra_header_key])
     send_header("")
 
     header = sock.readline()

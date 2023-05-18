@@ -39,8 +39,8 @@ class Session:
             iface=iface,
         )
 
-    def client(self, url):
+    def client(self, url, extra_headers={}):
         """
         Connect as a client to the given URL, and return the WebSocket object
         """
-        return connect(url, self._usocket)
+        return connect(url, self._usocket, extra_headers)
