@@ -101,7 +101,12 @@ class Websocket:
         """
 
         # Frame header
-        two_bytes = self.sock.read(2)
+        try:
+            two_bytes = self.sock.read(2)
+        except OSError as e:
+            if str(e) == "[Errno 11] EAGAIN":
+                raise NoDataException
+            raise e
 
         if not two_bytes:
             raise NoDataException

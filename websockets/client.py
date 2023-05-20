@@ -84,4 +84,5 @@ def connect(uri, socket_module, extra_headers):
             LOGGER.debug(str(header))
         header = sock.readline()
 
+    sock.settimeout(0)
     return WebsocketClient(sock)
