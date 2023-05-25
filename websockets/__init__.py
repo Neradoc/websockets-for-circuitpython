@@ -39,7 +39,7 @@ class Session:
             iface=iface,
         )
 
-    def client(self, url, extra_headers={}):
+    def client(self, url, extra_headers=None):
         """
         Connect as a client to the given URL, and return the WebSocket object.
         Extra headers sent on connection can be added with the extra_headers dict.

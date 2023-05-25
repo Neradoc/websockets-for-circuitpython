@@ -24,7 +24,7 @@ class WebsocketClient(Websocket):
     is_client = True
 
 
-def connect(uri, socket_module, extra_headers):
+def connect(uri, socket_module, extra_headers=None):
     """
     Connect a websocket.
     The uri is a string with ws or wss url scheme.
@@ -73,8 +73,9 @@ def connect(uri, socket_module, extra_headers):
     send_header("Sec-WebSocket-Version: 13")
     send_header("Origin: http{}://{}:{}", https, uri.hostname, uri.port)
     # additional headers
-    for extra_header_key in extra_headers.keys():
-        send_header("{}: {}", extra_header_key, extra_headers[extra_header_key])
+    if extra_headers:
+        for extra_header_key in extra_headers:
+            send_header("{}: {}", extra_header_key, extra_headers[extra_header_key])
     send_header("")
 
     header = sock.readline()
