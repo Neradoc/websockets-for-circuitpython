@@ -27,6 +27,9 @@ class WebsocketClient(Websocket):
 def connect(uri, socket_module, extra_headers):
     """
     Connect a websocket.
+    The uri is a string with ws or wss url scheme.
+    The socket module is a module that matches the C python socket module API.
+    Extra headers sent on connection can be added with the extra_headers dict.
     """
 
     uri = urlparse(uri)

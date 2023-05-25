@@ -41,6 +41,7 @@ class Session:
 
     def client(self, url, extra_headers={}):
         """
-        Connect as a client to the given URL, and return the WebSocket object
+        Connect as a client to the given URL, and return the WebSocket object.
+        Extra headers sent on connection can be added with the extra_headers dict.
         """
         return connect(url, self._usocket, extra_headers)
