@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 import asyncio
-import websockets
-import os
 import logging
+import os
+import socket
+import websockets
 
 
 logging.basicConfig(
@@ -12,7 +13,12 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 
+
 PORT = 5000
+hostname = socket.gethostname()
+HOST = socket.gethostbyname(hostname)
+
+print(f"Access: {HOST}:{PORT}")
 
 
 async def echo(websocket, path):

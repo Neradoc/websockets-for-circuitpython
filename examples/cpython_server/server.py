@@ -8,7 +8,12 @@ import re
 import time
 import sys
 import websockets
+import socket
 
+PORT = 5000
+
+hostname = socket.gethostname()
+HOST = socket.gethostbyname(hostname)
 
 color_names = {
     "aqua": 0x00FFFF,
@@ -94,7 +99,7 @@ async def handler(websocket, path):
         task.cancel()
 
 
-print("Starting")
-start_server = websockets.serve(handler, "0.0.0.0", 5000)
+print(f"Starting {HOST}:{PORT}")
+start_server = websockets.serve(handler, "0.0.0.0", PORT)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
