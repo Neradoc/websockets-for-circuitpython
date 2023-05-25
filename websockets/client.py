@@ -57,20 +57,20 @@ def connect(uri, socket_module):
     def send_header(header, *args):
         output = header.format(*args)
         if __debug__:
-            LOGGER.debug(output.decode())
-        return sock.send(output + b"\r\n")
+            LOGGER.debug(output)
+        return sock.send(output.encode() + b"\r\n")
 
     # Sec-WebSocket-Key is 16 bytes of random base64 encoded
     key = binascii.b2a_base64(bytes(random.getrandbits(8) for _ in range(16)))[:-1]
 
-    send_header(b"GET {} HTTP/1.1", uri.path or "/")
-    send_header(b"Host: {}:{}", uri.hostname, uri.port)
-    send_header(b"Connection: Upgrade")
-    send_header(b"Upgrade: websocket")
-    send_header(b"Sec-WebSocket-Key: {}", key.decode())
-    send_header(b"Sec-WebSocket-Version: 13")
-    send_header(b"Origin: http{}://{}:{}", https, uri.hostname, uri.port)
-    send_header(b"")
+    send_header("GET {} HTTP/1.1", uri.path or "/")
+    send_header("Host: {}:{}", uri.hostname, uri.port)
+    send_header("Connection: Upgrade")
+    send_header("Upgrade: websocket")
+    send_header("Sec-WebSocket-Key: {}", key.decode())
+    send_header("Sec-WebSocket-Version: 13")
+    send_header("Origin: http{}://{}:{}", https, uri.hostname, uri.port)
+    send_header("")
 
     header = sock.readline()
     if not header.startswith(b"HTTP/1.1 101 "):
